@@ -201,13 +201,21 @@ Computing summary statistics is always the first step in the exploratory analysi
 
 ```
 
-Your non-coding answer:
-```{e2b2}
-Please fill the dots with numbers below:
-The mean monthly rent is ... ;
-The median monthly rent is ... ;
-The maximum monthly rent is ... ;
-The minimum monthly rent is ... .
+Your answer:
+```{r e2b2}
+# Please complete the question below using the results you get from (b)
+# insert code here save the mean monthly rent as 
+# 'mean.monthly.rent'
+
+# insert code here save the median monthly rent as 
+# 'median.monthly.rent'
+
+# insert code here save the maximum monthly rent as 
+# 'maximum.monthly.rent'
+
+# insert code here save the maximum monthly rent as 
+# 'maximum.monthly.rent'
+
 ```
 
 (c) Use `table` function to get the number of postings in each city.
