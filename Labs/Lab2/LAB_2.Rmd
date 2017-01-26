@@ -1,0 +1,284 @@
+---
+title: "Lab 2"
+author: "STAT 28"
+date: "January 26, 2017"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Welcome to the second lab of STAT 28! Just as Ipython Notebook for python, R markdown document is a powerful tool for data analysis. To follow the convention in the R community, we will use R markdown in the future for labs and homework.
+
+The goal of the labs is to get you familiar with the data analysis you have already seen in lectures and produce them in R by yourself. Most of the exercises in the lab will be very similar to which in the lectures. It would always be helpful to open your lecture notes (both .pdf and .R) and follow the examples in lectures. 
+
+**Instructions for code**: We have already put in R chunks for where your code should go. **Do not change the names of the R chunks**: our tests as to whether your code works depends on these names. For some questions, we will ask you to save your answer with as a particular variable. For example, we might give you a code chunk that looks like this:
+
+```{r}
+set.seed(4291)
+# insert code here save the median of your simulated data as 
+# 'medx'
+```
+
+And you might complete it like so:
+```{r}
+set.seed(4291)
+# insert code here save the median of your simulated data as 
+# 'medx'
+x <- rnorm(1000)
+medx <- median(x)
+```
+
+Misspelling of the variable name may result in errors when testing on gradescope.
+
+**Submission**: You will need to submit both R markdown file (.Rmd) and the compiled PDFs to gradescope. The total points will be 100 for every lab. **Do not modify your file name**. Otherwise, gradescope would fail to recognize. For example, you will submit `LAB_2.Rmd` and `LAB_2.pdf` for this lab. Grading will be divided into two parts. For some questions, such as those ask for numerical values, you would see the correctness of your code immediately. For others such as plotting exercises, we will grade them manually after the submission deadline. The proportion of auto-grading and manual-grading exercises will vary by labs.
+
+
+# Probability Distributions
+
+There are a large number of distributions available in R (nearly every common distributions!). To get a list of them, you can do:
+```{r}
+?Distributions
+```
+
+You are probably only familiar with the normal distribution. But each of them is immensely useful in statistics. You will see Chi-squared distribution, student-t distribution later in this course. Every distribution has four functions associated with it.
+
+|Name | Explanation |
+|-----|-------------|
+| d | density: Probability Density Functions (pdfs) |
+| p | probability: Cumulative Distribution Functions (cdfs) |
+| q | quantile: the inverse of Probability Density Functions (pdfs) |
+| r | random: Generate random numbers from the distribution |
+
+Take normal distribution $N(\mu, \sigma^2)$ for example. Let's use the `dnorm` function to calculate the density of $N(1, 2)$ at $x = 0$:
+
+```{r}
+dnorm(0, mean = 1, sd = sqrt(2))
+# Notice here the parameter in dnorm is sd,
+# which represents the standard deviation (sigma instead of sigma^2). 
+```
+
+Looks familiar? It is exactly same the function that you wrote in lab 1! This function can accept vectors and calculate their densities as well. Let's plot the line of this function:
+
+```{r}
+# create a vector, spaced by 0.1
+x <- seq(from = -4, to = 5, by = 0.1)
+# calculate their densities
+x.dens <- dnorm(x, mean = 1, sd = sqrt(2))
+```
+
+```{r}
+# plot the line
+plot(x, x.dens)
+```
+
+The Cumulative Distribution Functions (cdfs) gives you the probability that the random variable is less than or equal to value:
+$$P(X \leq z)$$
+where $z$ is a constant and $X$ is the random variable. For example, in the above example. $N(1, 2)$ is symmetric about 1. Then what would be the probability that it is less than 1?
+
+```{r}
+probs <- pnorm(1, mean = 1, sd = 2)
+probs
+```
+
+`rnorm` is the inverse function of `pnorm`. It accepts value $p$ (probability) from 0 to 1, and returns a value $q$ (quantile) satisfies the following condition:
+
+$$P(X \leq q) = p$$
+where $X$ is the random variable. A toy example would be:
+
+```{r}
+qtl <- qnorm(0.5, mean = 1, sd = 2)
+qtl
+```
+
+The last function is very important when you simulate stuff. We use it to generate numbers from a distribution. 
+```{r}
+# generate 1000 samples from Normal(1, 2) distribution.
+samples <- rnorm(n= 1000, mean = 1, sd = 2)
+# plot the histogram
+hist(samples)
+```
+
+\pagebreak
+
+**Exercise 1.**
+
+(a) $X_1$ follows Normal Distribution $N(3.5, 9)$. What is the probability that $-2.5 < X \leq 9.5$? 
+
+```{r e1a}
+# insert code here save the your answer as
+# 'ex.1a'
+```
+
+(b) $X_2$ follows Normal Distribution $N(3.5, 9)$. Theoretically, what is the expected length of the interquartile range (IQR) if we plot samples from $X_2$? (HINT: length(IQR) = 0.75 quantile - 0.25 quantile.)
+
+```{r e1b}
+# insert code here save the your the length of the interquartile range as
+# 'iqr.length'
+```
+
+\pagebreak
+
+# Set Seed
+
+The random numbers and random samples generated in R are produced by a random number generator. The process is not really "random", but mimic the results of what we would get from random. It can be tracked and is reproducible. For example, if you run a permutation test function for two times, you would get two very close but different p-values. But if you set the seed to be the same number before you run the permutation test, you would obtain the exact same p-values. Throughout the rest of the course where random number generation is involved, we would set seed of the random number generator such that the results are fully reproducible. However, in the real application, you should always remember to change it. 
+
+The following chunk illustrate how `set.seed` influence the random number generation. 
+
+```{r}
+set.seed(201728)
+sample(x = 1:5, size = 3) # after calling this function, the seed will be updated
+sample(x = 1:5, size = 3) # the seed has changed thus we would get a different number
+set.seed(201728) # set the seed back to 201728
+sample(x = 1:5, size = 3)
+```
+
+It is the same with `rnorm`:
+
+```{r}
+set.seed(20170126)
+rnorm(5, mean = 0, sd = 1)
+rnorm(5, mean = 0, sd = 1)
+set.seed(20170126)
+rnorm(5, mean = 0, sd = 1)
+```
+
+
+# Exploratory Analysis -- Rent Price in SF Bay Area
+
+According to a U.S. News and World Report in collaboration with Zillow, the off-campus housing price of Stanford and Berkeley have ranked No.1 and No.3 among top-ranked universities. Student renters in the Bay area expect to see the highest annual rental appreciation, which is anticipated to grow by more than 6 percent over the coming year. (Reference: [College Students Can Expect Highest Off-Campus Housing Costs in Palo Alto and Princeton, Lowest in St. Louis](http://www.prnewswire.com/news-releases/college-students-can-expect-highest-off-campus-housing-costs-in-palo-alto-and-princeton-lowest-in-st-louis-300326665.html)) The rent price of Berkeley and its surrounding cities may vary. Many students choose to live in the neighborhoods such as Albany, Oakland, El Cerrito and Richmond. In this lab, we will explore a dataset scraped from [Craigslist](https://sfbay.craigslist.org/) posting with the rent prices in Stanford and Berkeley, as well as their nearby cities. The dataset is a subset which only includes apartment/housings with less than or equal to 4 bedrooms.
+
+The table **craigslist.csv** contains a Simple Random Sample (SRS) of the monthly rent price in 2016. Each posting record contains the following information:
+
+- time: posting time
+- price: apartment/housing monthly rent price
+- size: apartment/housing size (ft^2)
+- brs: number of bedrooms
+- title: posting title
+- link: posting link, add "https://sfbay.craigslist.org" to visit the posting page
+- location: cities
+
+Read in data.
+
+```{r ReadData}
+craigslist <- read.csv("craigslist.csv", 
+                       header = TRUE, stringsAsFactors = FALSE)
+```
+
+Cities included in the dataset.
+
+```{r UniqueCities}
+unique(craigslist$location)
+```
+
+A posting example.
+```{r PostingExample}
+craigslist[1, ]
+```
+
+\pagebreak
+
+## Summary statistics
+
+**Exercise 2.** 
+
+Computing summary statistics is always the first step in the exploratory analysis. The summaries may include average, median, maximum, minimum, etc. One simple method is to use the `summary` function.
+
+(a) Find out the number of postings in the dataset.
+
+```{r e2a}
+# insert code here save the your answer as
+# 'n.postings'
+```
+
+(b) Use `summary` function to get the mean, median, maximum and minimum of the monthly rent.
+
+```{r e2b1}
+
+```
+
+Your non-coding answer:
+```{e2b2}
+Please fill the dots with numbers below:
+The mean monthly rent is ... ;
+The median monthly rent is ... ;
+The maximum monthly rent is ... ;
+The minimum monthly rent is ... .
+```
+
+(c) Use `table` function to get the number of postings in each city.
+
+```{r e2c}
+
+```
+
+## Histograms and boxplots
+
+Recal that many R basic plot functions accepts the same options, such as:
+
+- `main`: Title of the plot.
+- `xlab`/`ylab`: x/y axis label.
+- `col`: plot color, the usuage of this variable may vary for different plot functions. Here the two color corresponds to female and male.
+- `xlim`/`ylim`: the limits (starting and ending values) for the x/y axis.
+- `legend`: the legend of the plot, the usuage of this variable may vary for different plot functions.
+
+Always remember to add the title and axis label when you create a plot. You can check the help document (e.g `?hist`) to experience other arguments.
+
+For example, to adjust plot of the histogram of our simulated `sample` in the previous probability section:
+
+```{r}
+hist(samples, 
+     main = "Simulated sample from Normal(1, 2)", # plot title
+     xlab = "Simulated sample", # x label
+     xlim = c(-3, 5)) # only plot samples greater than -3 and less than 5
+```
+
+\pagebreak
+
+**Exercise 3.** 
+
+(a) Plot a histogram of the monthly rent. Choose a number of breaks you think best from 10, 50, 300. 
+
+```{r e3a}
+
+```
+
+(b) Plot another histogram with the argument `freq = FALSE`. What is the interpretation of y axis numbers?
+
+Hint: It is helpful to check the help document using `?`  if you are confused about one argument or usage. Always remember to add the title and axis label when you create a plot.
+
+```{r e3b}
+
+```
+
+Your non-coding answer:
+```{e3bAnswer}
+
+```
+
+**Exercise 4.** 
+
+(a) Subset the one bedroom postings.
+
+```{r e4a}
+# insert code here save the data frame of one bedroom postings
+# 'one.bedrooms'
+```
+
+(b) Draw the boxplot of one bedroom rent price for each cities side by side.
+
+```{r e4b}
+
+```
+
+(c) Can you find the link of the outlier with monthly rent larger than 5000 in the boxplot?
+
+```{r e4c}
+# insert code here save the link (string) as
+# 'outlier.link'
+```
+
