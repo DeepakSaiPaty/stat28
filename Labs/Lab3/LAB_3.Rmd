@@ -35,6 +35,35 @@ craigslist <- read.csv("craigslist.csv",
 one.bedrooms <- craigslist[craigslist$brs == 1,]
 ```
 
+# Install packages
+
+R is very powerful in statistical analysis mainly due to a huge community that supports it. Experts contribute to R through packages which are easily accessible (through [CRAN](https://cran.r-project.org/)). There are two ways to install R packages.
+
+**Installation using Studio Interface**
+
+- Open you RStudio.
+- Click `Packages` window in the bottom right panel and then click install.
+- A window named `install packages` will pop up. Enter the name of packages you want to install. For example, `vioplot` from lecture 1. Make sure you checked `install dependencies` and then click `Install`.
+- If you see the messages in the console similar to the following, you've successfully installed the package! Sometimes the messages will be much longer because many R packages use the code from others (dependencies), and R will need to download and install the dependencies as well. 
+![](figure/installPackages.png)
+- The package name will then appear in the list of `Packages` window. There are already a collection of packages in the list, which we previously installed for you.
+
+**Installation using R Code**
+
+There is a much quicker alternative than clicking bottoms in the first method. You will only need to run the following code:
+```{r}
+install.packages("vioplot")
+```
+
+**Loading Packages**
+
+To use functions from your installed packages, you will need to load them by running `library` function. For example, to load the `vioplot` package:
+```{r}
+library(vioplot)
+```
+
+
+
 # Density Curves and Violin Plot
 
 Recall the histogram you plotted with `freq = FALSE` in lab 2:
@@ -47,10 +76,15 @@ hist(craigslist$price, xlab = "Price", freq = FALSE, breaks = 50,
 
 **Exercise 1** 
 
-Now fit a density curve for the monthly rent histogram. Compare the y axis with the histograms you draw. (HINT: Use the function `density` and refer to *Example of Flight data* in section 4.3.1 (Kernel density estimation) of Lecture 1. )
+Now fit a density curve for the monthly rent on top of the histogram. 
+
+HINT1: Use the function `density` and refer to *Example of Flight data* in section 4.3.1 (Kernel density estimation) of Lecture 1. 
+
+HINT2: You will need to first draw a histogram, and then plot the density curve with argument `add = TRUE` in the following chunk.
 
 ```{r e1}
 # insert your code here
+
 ```
 
 **Exercise 2** 
@@ -140,7 +174,7 @@ Now the difference of price median between Berkeley and Palo Alto reduced compar
 
 **Exercise 4** 
 
-You will do a permutation test to compare the average one bedroom apartment rent price in You will do a permutation test to compare the average one bedroom apartment rent price in Berkeley and Palo Alto.
+You will do a permutation test to compare the average one bedroom apartment rent price in Berkeley and Palo Alto.
 
 To repeat things in R, there is a more convenient and efficient way than using for loop. The function `replicate` is designed for evaluating an expression repeatedly. For example, to get a vector of length 1000 whose elements are generated from the sum of five normal distributed samples:
 
