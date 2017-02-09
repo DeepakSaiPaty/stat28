@@ -1,0 +1,341 @@
+---
+title: "LAB 4"
+author: "STAT 28"
+date: "February 9, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Read in data.
+
+```{r}
+craigslist <- read.csv("craigslist.csv", 
+                       header = TRUE, stringsAsFactors = FALSE)
+one.bedrooms <- craigslist[craigslist$brs == 1, ]
+```
+
+# Replicate
+
+To repeat things in R, there is a more convenient and efficient way than using for loop. The function `replicate` is designed for evaluating an expression repeatedly. For example, to get a vector of length 50 where each element is generated independently from the sum of five normal distributed samples:
+
+```{r}
+set.seed(20170209)
+example1 <- replicate(50, sum(rnorm(5)))
+```
+
+The equivalence of the above code using for loops will be:
+
+```{r}
+# create a vector of length 0 to store the results
+example2 <- c()
+# calculate for 50 times
+for (i in 1:50){
+  # concatenate the calculated sum of normal samples to the end of `results` vector
+  example2 <- c(example2, sum(rnorm(5)))
+}
+```
+
+The first argument of `replicate` function is the number of replications. And the second argument is an expression which will be evaluated repeatedly, which usually involves random sampling and simulation. (Otherwise, you would get a vector of one identical number. That's useless!) Sometimes, the things you want to replicate can not finish on one line, and then you may need to use the big bracket such as the following. Elements in the `example3` vector would be the value of the last expression in the bracket. (Since we set the same seed for `example1` and `example3`, you may want to compare the value of them to see what happened.)
+
+```{r}
+set.seed(20170209)
+example3 <- replicate(50, {
+  a <- rnorm(5)
+  b <- 5
+  sum(a) + b    # return the value 
+})
+```
+
+# Permutation test
+
+**Exercise 1.** 
+
+You will do a permutation test to compare the average one bedroom apartment rent price in Berkeley and Palo Alto.
+
+(a) Subset the dataset to only consider one one bedroom apartment in Berkeley and Palo Alto.
+
+```{r e1a}
+# insert code here save the data frame of one bedroom postings 
+# in Berkeley and Palo Alto as
+# 'subset'
+
+
+```
+
+(b) Count the number of postings for Berkeley in the data frame `subset`.
+
+```{r e1b}
+# insert code here save the number of postings for Berkeley as
+# 'no.berkeley'
+
+```
+
+(c) Calculate the observed statistics, i.e., the absolute difference between the mean of Berkeley and Palo Alto one bedroom rent price.
+
+```{r e1c}
+# insert code here save the observed statistics as
+# 'stat.obs'
+
+
+```
+
+(d) Calculate the permuted statistics (absolte mean difference), repeat for 1000 times. HINT: use `sample` function to sample from a group of observations. You can use either for loop or the `replicate` function introduced above. However, it is a good practive to try `replicate`.
+
+```{r e1d}
+# insert code here save the bootstrap statistics as
+# 'stat.bootstrap'
+set.seed(20172828)
+
+
+```
+
+(e) Calculate the p-value.
+
+```{r e1e}
+# insert code here save the p value as
+# 'p.value'
+
+
+```
+
+# T-test
+
+With the function `t.test`, implementing t-tests is easy in R. We will illustrate using a simulated example:
+
+```{r}
+# Generate 100 samples from N(0, 1)
+group1 <- rnorm(100, mean = 0, sd = 1)
+# Generate 100 samples from N(0.2, 1)
+group2 <- rnorm(100, mean = 0.2, sd = 1)
+# perform t test
+t.test(group1, group2)
+```
+
+`t.test` usually print the results. To obtain the value of the t statistics or p-value, it is generally not wise to copy and paste from the printed output. Imagine you need to do 1000 t-test simultaneously, it is impossible to copy and paste every time. We need to figure out the output of `t.test`:
+
+```{r}
+ttest.result <- t.test(group1, group2)
+```
+
+If you check the `ttest.result` object in your Environment window, you will find that it is a list of 9. And each element in the list stores some information.
+
+```{r}
+names(ttest.result)
+```
+
+To get the p-value, you can use either dollar sign or double square bracket, which are two ways usually used to extract elements from lists. 
+
+```{r}
+ttest.result$p.value    # with dollar sign, you can do tab completion
+```
+
+```{r}
+ttest.result[['p.value']]
+```
+
+
+**Exercise 2.**
+
+Now apply t-test to compare the rent difference of one bedrooms in Palo Alto and Berkeley.
+
+```{r e21}
+# insert code here and save the t statistics as
+# 'rent.1b.tstat'
+
+
+```
+
+
+```{r e22}
+# insert code here and save the p value as
+# 'rent.1b.pvalue'
+
+
+```
+
+### Simulation: when will the t-test fail
+
+Following four functions generate four types of sample (You can ignore the details concerning how the samples are generated.)
+
+- **generate.sample1**: Small sample size (5) and normal distributed samples.
+- **generate.sample2**: Small sample size (5) and non-normal distributed samples.
+- **generate.sample3**: Large sample size (100) and non-normal distributed samples.
+- **generate.sample4**: Large sample size (100), normal distirbuted but sample not independent.
+
+```{r}
+generate.sample1 <- function(){
+  sample <- rnorm(5)
+  return(sample)
+}
+
+generate.sample2 <- function(){
+  sample <- rgamma(5, 1.5, 2)
+  return(sample)
+}
+
+generate.sample3 <- function(){
+  sample <- rcauchy(100, 0, 1)
+  return(sample)
+}
+
+generate.sample4 <- function(){
+  sample <- arima.sim(n = 100, list(ar = c(1, -0.5), ma = c(0.3)))
+  return(sample)
+}
+```
+
+If you run the function, such as `generate.sample1`, it will generate the corresponding samples.
+
+```{r}
+samples <- generate.sample1()
+samples
+```
+
+
+**Exercise 3.**
+
+Please complete the function `simulation`. It accept the name of the above sample generation functions and return the estimated type I error.
+
+1. generate two samples from the function `FUN`.
+2. calculate the p-value using t-test.
+3. repeat 1 and 2 for N times.
+4. calculate the chance of rejecting the null hypothesis $H_0:\mu_1 = \mu_2$ when the significant level is set to 0.05. (that is, the estimated Type I Error) HINT: The chance of rejecting the null can be estimated by ((The number of rejections) / N) = ((The number of p values less or equal than 0.05) / N).
+
+```{r}
+simulation <- function(FUN, N = 10000){
+  # FUN: function name for sample generation
+  # N: number of repetitions
+
+  
+}
+```
+
+After complete your function above, you can run the following code:
+
+```{r e31}
+set.seed(123456) # please do not modify the seed
+simulation(generate.sample1)
+```
+
+```{r e32}
+set.seed(123456) # please do not modify the seed
+simulation(generate.sample2)
+```
+
+```{r e33}
+set.seed(123456) # please do not modify the seed
+simulation(generate.sample3)
+```
+
+```{r e34}
+set.seed(123456) # please do not modify the seed
+simulation(generate.sample4)
+```
+
+Since the null hypothesis is true when we generate the data, the estimated Type I error should be close to 0.05 as we increase the number of repetitions. However, you may observe that t-test fails except for the first sample.  
+
+From the simulation, which test do you think is better for the Craigslist dataset? why?
+
+```{e35}
+Write your non-coding answer here.
+
+```
+
+# apply and sapply
+
+We introduced `replicate` to repeat a function for several times. Now what if we want to run a function for several times, but change the argument everytime we run it? For example, to calculate the square root of integers from 1 to 100. Foor loops would certainly work. However, there is a much faster and simple way in R. Lat look at two functions `apply` and `sapply`.
+
+`apply` traverse row (or column) wise and apply a function to each row (or column). It is usually used on matrix and data frames. Depending on the function, it returns a vector or array or list of values.
+
+`sapply` traverse every element in an array or a list and apply a function on each element.
+
+Let us look at the problem of calculating the square root of integers plus the integer value itself from 1 to 100. To implement with for loops:
+
+```{r}
+sqroots = c()
+for (i in 1:100){
+  sqroots = c(sqroots, i + sqrt(i))
+}
+```
+
+And it is equivalent to the following with `sapply`:
+
+```{r}
+sqroots <- sapply(1:100, function(x){
+  x + sqrt(x)
+})
+```
+
+`sapply` usually results in less running time and easier code implementation.
+
+Now we create a matrix with 100 rows and 10 columns with each entries being a random number from $N(0, 1)$.
+
+```{r}
+mat <- matrix(rnorm(1000), 100)
+```
+
+To obtain the maximum number of each row with `apply`:
+```{r}
+row.max <- apply(mat, 1, max)
+```
+
+To obtain the mean number of the third the the fifth element each row with `apply`:
+```{r}
+row.sum35 <- apply(mat, 1, function(x) x[3] + x[5])
+```
+
+To obtain the maximum number of each column with `apply`:
+```{r}
+col.max <- apply(mat, 2, max)
+```
+
+# Bonferroni correction
+
+**Exercise 4.**
+
+(a) Perform t-test on the meam price difference for each pairwise city combinations. Save the p-values in vector `p.values`. For which city pairs we can not reject the null hypothesis that mean rent price is equal? (under level 0.05) Again, you can use `apply` or for loops, but `apply` is recommended.
+
+```{r e4a1}
+cities <- unique(craigslist$location) # get the vector of unique city names
+cities.combn <- combn(cities, 2) # this will give you all the possible combinations of two cities
+# insert code here save the number of postings for Berkeley as
+# 'p.values'
+p.values <- apply(cities.combn, 2, function(x){
+  # The price vector for city 1 (x[1])
+  # city1data <- 
+  # The price vector for city 2 (x[2])
+  # city2data <- 
+  # return the p value of t test
+  # p <- 
+  # return(p)
+})
+```
+
+```{r e4a2}
+# You can not reject the null hypothesis that mean rent price for the following city pairs.
+# (Subset the `cities.combn`.)
+# save the your answer as
+# 'not.reject'
+
+```
+
+(b) Perform Bonferroni corrections on the p-values. For which city pairs we can not reject the null hypothesis that mean rent price is equal? (under level 0.05)
+
+```{r e4b1}
+# insert code here save you answer as
+# 'p.values.adj'
+
+```
+
+```{r e4b2}
+# You can not reject the null hypothesis that mean rent price for the following city pairs.
+# (Subset the `cities.combn`.)
+# (After Bonferroni corrections)
+# insert code here save you answer as
+# 'not.reject.adj'
+
+```
+
