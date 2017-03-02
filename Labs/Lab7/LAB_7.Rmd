@@ -1,0 +1,153 @@
+---
+title: "LAB 7"
+author: "STAT 28"
+date: "March 2, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Welcome to lab 7! In this lab, you will:
+
+- Learn how to do loess regression.
+- Explore some visualization methods for datasets with categorical variables.
+
+# Loess: Local Polynomial Regression Fitting
+
+Read the data.
+
+```{r}
+data_science <- read.csv("data_science.csv")
+# convert string to date object
+data_science$week <- as.Date(data_science$week, "%Y-%m-%d")
+# create a numeric column representing the time
+data_science$time <- as.numeric(data_science$week) 
+data_science$time <- data_science$time - data_science$time[1] + 1
+```
+
+There are several options in R for loess fitting.
+
+`loess.smooth` returns a list with the smoothed data coordinates:
+
+```{r}
+loess.results <- loess.smooth(x=data_science$week,y=data_science$r)
+loess.results
+```
+```{r, fig.width=5, fig.height=3.5}
+plot(loess.results$x, loess.results$y)
+```
+
+`loess.smooth` is very convenience in the sense of plotting. Actually, there is also `scatter.smooth`, which plot the scatter plot and smoothed fit with just one line of code. (The disadvantage of `scatter.smooth` is that there is no argument to change the line color. And it is just for plotting, no coordinates are returned.)
+```{r, fig.width=5, fig.height=3.5}
+scatter.smooth(x=data_science$time,y=data_science$r)
+```
+
+However, `loess.smooth` only returns the smoothed data points. To do prediction using the loess model, we need function `loess`, which has similar usage with the `lm` function. Notice the default smoothing parameter for `loess.smooth`(span = 2/3, degree = 1) and `loess`(span = 0.75, degree = 2) is different.
+
+```{r}
+loess.fitted <- loess(r~time, data = data_science)
+summary(loess.fitted)
+```
+
+```{r}
+predict(loess.fitted, data.frame(time = c(1000, 1500)))
+```
+
+**Exercise 1.**
+
+Follow the steps below to create a plot:
+
+- (1) Plot the scatter plot of `week` versus `r` and `week` versus `python` with red and blue. You may use high-level function `plot` for the first group, and use low-level function `points` to add the other group of points. You may adjust the point size using argument `cex = 0.5`. Do not forget to add the labels and title.
+
+- (2) Plot the loess smoothing line on top with red and blue. You can use `loess.smooth` and low-level plot function `lines`. You may want to the argument `lwd = 2` to increase the line width.
+
+- (3) Add the legend to the plot.
+
+Eventually, your plot will look like the following:
+
+![](Exercise1_plot.png)
+
+
+```{r ex1}
+# Insert your code for plotting here
+
+```
+
+# Multivariate Data visualization - Online news popularity
+
+This dataset summarizes a heterogeneous set of features about articles published by [Mashable](http://mashable.com/) in a period of two years. This dataset contains 49 variables for each news post, such as 
+
+- `weekday`: days of week. Mon, Tue, Wed, etc. 
+- `channel`: channel. Tech, Entertainment, Business, etc.
+- `shares`: number of shares.
+- `num_imgs`: Number of images.
+- `num_videos`: Number of videos.
+- `n_tokens_title`: : Number of words in the title.
+- `num_hrefs`: Number of links
+
+Read in data.
+```{r}
+popul <- read.csv("OnlineNewsPopularity.csv")
+```
+
+**Exercise 2**
+
+(a) Make the bar plots for `weekdays` and `channels` separately side by side using `barplot` and `table` function. Rotate the x axis labels using argument `las = 2` in `barplot`. (HINT: use `par(frow...)`)
+
+```{r ex2a}
+# Insert your code for plotting here
+```
+
+(b) Create a contingency table between `weekdays` and `channels`. Use barplot to visualize the relationship between two categorical variables.
+
+```{r ex2b}
+# Insert your code for plotting here
+```
+
+(c) Use the contingency table you created in (b) to get separate bar plots for days of the week. (use `beside = TRUE`)
+
+```{r ex2c}
+# Insert your code for plotting here
+```
+
+**Exercise 3**
+
+Followed is a subset of the news popularity dataset.
+
+```{r}
+vars <- c("weekday", "channel", "shares", "num_imgs", "num_videos", "n_tokens_title", "num_hrefs")
+sample.idx <- sample(nrow(popul), 2000)
+subset <- popul[sample.idx, vars]
+```
+
+(a) Plot the pairs plot using the function `pairs` for `subset`.
+
+```{r ex3a}
+# Insert your code for plotting here
+```
+
+(b) Plot the pairs plot using the function `gpairs` in the `gpairs` package for `subset`. Which function is more friendly for categorical variables? 
+
+```{r ex3b}
+library(gpairs)
+# Insert your code for plotting here
+```
+
+**Exercise Extra** (not required)
+
+(a) Plot the alluvial plot for `weekday` and `channel`.
+
+```{r exextraa}
+library(alluvial)
+# Insert your code for plotting here
+```
+
+(b) Plot the mosaicplot plot for `weekday` and `channel`.
+
+```{r exextrab}
+# Insert your code for plotting here
+```
+
+
