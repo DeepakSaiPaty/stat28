@@ -1,0 +1,189 @@
+---
+title: "LAB 11"
+author: "STAT 28"
+date: "April 13, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Welcome to the lab 11! Today, we will use linear regression to predict the red wine quality using physicochemical tests scores such as citric acid, pH, etc.
+
+The dataset is related to red variants of the Portuguese "Vinho Verde" wine. There are 1599 samples available in the dataset. Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables are available (e.g. there is no data about grape types, wine brand, wine selling price, etc.). 
+
+The explanatory variables are all continuous variables based on physicochemical tests:
+
+- **fixed acidity**
+- **volatile acidity**
+- **citric acid**
+- **residual sugar**
+- **chlorides**
+- **free sulfur dioxide**
+- **total sulfur dioxide**
+- **density**
+- **pH**
+- **sulphates**
+- **alcohol**
+
+The response variable is the **quality** score between 0 and 10 (based on sensory data).
+
+Read data. We randomly split the data into two parts-the `wine` dataset with 1199 samples and the `wine.test` dataset with 400 samples. Splitting the dataset is a common technique when we want to evaluate the model performance. There are training set, validation set, and test set. The validation set is used for model selection. That is, to estimate the performance of the different model in order to choose the best one. The test set is used for estimating the performance of our final model.
+
+```{r}
+set.seed("20170413")
+wine.dataset <- read.csv("winequality-red.csv", sep = ";")
+test.samples <- sample(1:nrow(wine.dataset), 400)
+wine <- wine.dataset[-test.samples, ]
+wine.test <- wine.dataset[test.samples, ]
+```
+
+To check the correlation between explanatory variables:
+
+```{r}
+cor(wine[, -1])
+```
+
+Great! The correlations are not as high as the diamond dataset we saw in the last lab, which means we do not need to worry too much about heteroscedasticity. We now fit the linear regression using all of the explanatory variables:
+
+```{r}
+wine.fit <- lm(quality ~. ,data = na.omit(wine))
+summary(wine.fit)
+```
+
+**Exercise 1**
+
+As you can read from the p-values, several coefficients of the explanatory variables are not significant. Suppose now that we want to test the hypothesis that the betas corresponding to *fixed.acidity*, *citric.acid*, *residual.sugar* and *density* are all simultaneously zero.
+
+(a) Fit the regression corresponds to the above submodel. Print the summary of your fit.
+
+```{r}
+# insert your code here and save your fit as `submodel.fit`
+# submodel.fit <- 
+# summary(submodel.fit)
+```
+
+(b) What is the degree of freedoms corresponding to your full model and your submodel?
+
+```{r}
+# insert your code here. 
+# save the degree of freedom of your full model as `df.fullmodel`.
+# save the degree of freedom of your submodel as `df.submodel`.
+# df.fullmodel <- 
+# df.fullmodel
+# df.submodel <- 
+# df.submodel
+```
+
+(c) Calculate the RSS (residual sum of squares) of the full model and submodel.
+
+```{r}
+# insert your code here. 
+# save the RSS of your full model as `rss.fullmodel`.
+# save the RSS of your submodel as `rss.submodel`.
+# rss.fullmodel <- 
+# rss.fullmodel
+# rss.submodel <- 
+# rss.submodel
+```
+
+(d) Calculate the F-statistics.
+
+```{r}
+# insert your code here and save the F-statistics as `f.stat`
+# f.stat <- 
+# f.stat
+```
+
+(e) Based on your F-statistics, calculate the p-value. Will you accept the full model or the submodel?
+
+```{r}
+# insert your code here and save the p-value as `p.value`
+# p.value <- 
+# p.value
+```
+
+(f) Use the `anova` function to verify your calculation above.
+
+```{r}
+# insert your code here
+
+```
+
+**Exercise 2 Confidence Interval** 
+
+(a) Calculate the confidence interval for all the coefficients in the `submodel.fit`. Which of these factors will positively influence the wine quality?
+
+```{r}
+# Insert your code here to calculate the confidence intervals for the regression coefficients.
+
+```
+
+(b) Calculate the confidence intervals for the samples in `wine.test` using `submodel.fit`. Which confidence interval will you use? Confidence intervals for the average response or the prediction interval?
+
+```{r}
+# insert your code here and save your confidence intervals as `wine.confint`
+# wine.confint <- 
+```
+
+(c) What is the percentage that your interval in (b) covers the true **quality** score? What if you use the other confidence interval? Which one is consistent with your confidence level?
+
+```{r}
+# insert your code here and save your percentage as `pct.covered`
+# pct.covered <- 
+# pct.covered
+# insert your code here and save your percentage calculated 
+# using the other confidence interval as `pct.covered.other`
+# wine.confint.other <- 
+# pct.covered.other <- 
+# pct.covered.other
+```
+
+**Exercise 3 Backward Elimination based on p-values**
+
+We start with our full model `wine.fit`.
+
+(a) Remove the term with the highest p-value in the full model. Print the summary of your updated model.
+
+```{r}
+# insert your code here and save your updated model as `wine.backward`
+# wine.backward <- 
+# summary(wine.backward)
+```
+
+(b) Repeat the process in (a) until all the p-values are less than the significance level. Print the summary of your final model.
+
+```{r}
+# insert your code here and save your model as `wine.backward`
+
+
+
+```
+
+(c) In R, there are functions which help us to do the automatically variable selection. The `step` uses AIC, criteria very similar to RSS but also takes the number of explanatory variables into account, to do the stepwise variable selection. For example, to do backward elimination starting with our full model:
+
+```{r}
+step(wine.fit, direction = "backward")
+```
+
+Now try to understand the output of `step` function. Write down the order of variable elimination and the final model.
+
+```{}
+Order of variable elimination:
+Final model:
+```
+
+(d) Start from the model with only intercept term. Use the step function to do the forward selection. Write down the order of variable addition and the final model. HINT: (a) Use the `scope` argument in step function. (b) Use `formula` function to get the formula of your full model.
+
+```{r}
+# Insert your code here
+
+
+```
+
+```{}
+Order of variable addition:
+Final model:
+```
+
