@@ -1,0 +1,203 @@
+---
+title: "LAB 12"
+author: "STAT 28"
+date: "April 20, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Welcome to the lab 12! In this lab, you will
+
+- Do regression diagnosis on the datasets from the previous labs.
+- Learn how to do logistic regression.
+
+# Regression dianosis
+
+## Red wine dataset
+
+Let's first look at the red wine quality prediction dataset from lab 11.
+
+Read data.
+
+```{r}
+wine<- read.csv("winequality-red.csv", sep = ";")
+wine$quality <- wine$quality + rnorm(length(wine$quality))
+```
+
+Fit the model.
+```{r}
+wine.fit <- lm(quality~volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol, data=wine)
+summary(wine.fit)
+```
+
+**Exercise 1**
+
+(a) Do regression diagnostics using the `plot` function.
+
+```{r}
+# insert your code here to do regression diagnostics.
+
+```
+
+(b) Answer the following TRUE/FALSE questions based on the diagnostics plot. Uncomment your answer.
+
+```{r}
+### I. The plot indicates heteroscedasticity.
+# TRUE
+# FALSE
+### II. There are non-linearity between the explantory variable and response variable.
+# TRUE
+# FALSE
+### III. The normal assumtion holds for this model.
+# TRUE
+# FALSE
+```
+
+(c) Identify at least two outliers from the data. (You do not need to write the code.)
+
+```{}
+I think the sample ??? and ??? are outliers.
+```
+
+
+## Diamond dataset
+
+Now let us look at the diamond dataset from lab 10. 
+
+Read the data.
+
+```{r}
+diamonds <- read.csv("diamonds.csv")
+diamonds <- diamonds[sample(1:nrow(diamonds), 1000), ]
+head(diamonds)
+```
+
+Fit a linear regression.
+
+```{r}
+diamond.fit <- lm(price ~ carat + cut + color + clarity + depth + table, data = diamonds)
+summary(diamond.fit)
+```
+
+**Exercise 2**
+
+(a) Do regression diagnostics using the `plot` function.
+
+```{r}
+# insert your code here to do regression diagnostics.
+
+```
+
+(b) Answer the following TRUE/FALSE questions based on the diagnostics plot. Uncomment your answer.
+
+```{r}
+### I. The plot indicates heteroscedasticity.
+# TRUE
+# FALSE
+### II. There are non-linearity between the explantory variable and response variable.
+# TRUE
+# FALSE
+### III. The normal assumtion holds for this model.
+# TRUE
+# FALSE
+```
+
+# Logistic regression - Customer Retension
+
+This is a data set from [IBM Watson Analytics](https://www.ibm.com/communities/analytics/watson-analytics-blog/predictive-insights-in-the-telco-customer-churn-data-set/). 
+
+This data set provides info to help you predict behavior to retain customers. You can analyze all relevant customer data and develop focused customer retention programs.
+
+A telecommunications company is concerned about the number of customers leaving their landline business for cable competitors. They need to understand who is leaving. Imagine that you’re an analyst at this company and you have to find out who is leaving and why.
+
+The data set includes information about:
+
+- Customers who left within the last month – the column is called Churn
+- Services that each customer has signed up for – phone, multiple lines, internet, online security, online backup, device protection, tech support, and streaming TV and movies
+- Customer account information – how long they’ve been a customer, contract, payment method, paperless billing, monthly charges, and total charges
+- Demographic info about customers – gender, age range, and if they have partners and dependents
+
+Read the data.
+
+```{r}
+retension <- read.csv("customer_retension.csv", stringsAsFactors = FALSE)
+retension$SeniorCitizen[retension$SeniorCitizen == 0] = "Yes"
+retension$SeniorCitizen[retension$SeniorCitizen == 1] = "No"
+retension = retension[retension$MultipleLines != "No phone service", ]
+retension = retension[retension$OnlineSecurity != "No internet service", ]
+retension$customerID = NULL
+retension$Churn[retension$Churn == "Yes"] = 1
+retension$Churn[retension$Churn == "No"] = 0
+retension$Churn = as.factor(retension$Churn)
+retension$PhoneService = NULL
+retension$PaymentMethod = as.factor(retension$PaymentMethod)
+
+test.set = sample(nrow(retension), 500)
+retension.test = retension[test.set, ]
+retension = retension[-test.set, ]
+```
+
+**Exercise 3**
+
+(a) Fit a logstic regression on the dataset.
+
+```{r}
+# insert your code here to fit a logistic regression.
+
+```
+
+
+(b) Use the backward stepwise selection method to choose a model. (You can choose the criteria yourself. It can be AIC, p-value or cross-validation score.)
+
+```{r}
+# Insert your code here to do backward stepwise selection.
+```
+
+(c) There are four payment methods available for customers. 
+
+```{r}
+levels(retension$PaymentMethod)
+```
+
+While holding other predictors in the model constant, which of the category have the largest retention probability? (Uncomment your answer below).
+
+```{}
+# Bank transfer (automatic)
+# Credit card (automatic)
+# Electronic check       
+# Mailed check" 
+```
+
+Which of the category have the smallest retention probability? (Uncomment your answer below).
+
+```{}
+# Bank transfer (automatic)
+# Credit card (automatic)
+# Electronic check       
+# Mailed check" 
+```
+
+What is the probability difference between the group with largest and the smallest retention probability?
+
+```{}
+A. 0.3487375
+B. -0.3487375
+C. 0.0187330
+D. -0.0187330
+E. Not enough information for calculating the difference.
+```
+
+(d) Using your fitted model, make the prediction on the test set retension.test. What is your prediction accuracy? (i.e. the proportion you got right.)
+
+```{r}
+# Insert your code here
+# Hint: use `predict` function, it is just the same with doing lienar regression
+# Hint: use the argument `type="response"` to get the predicted probability
+# Hint: When the probality is larger than 1 we predict it as category 1, otherwise category 0
+```
+
+
+
